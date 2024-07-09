@@ -3,7 +3,8 @@ function solution(dice){
     let max = 0 // 최대값을 저장할 변수
     const n = dice.length // 주사위 배열의 길이
     const array = new Array(n).fill(0).map((a,i)=>i) // 0부터 n-1까지의 숫자로 이루어진 배열 생성
-    const combinations = a(n/2,array) // n/2 크기의 조합 생성
+    console.log(array)
+    const combinations = a(3, array) // 3 크기의 조합 생성
 }
 
 function a(n,array){
@@ -21,5 +22,42 @@ function a(n,array){
     return result // 결과 반환
 }
 
+function solution1(nums) {
+    var answer = 0;
+    var com = combination(3, nums);
+    for (var i = 0; i < com.length; i++) {
+        // forEach를 사용하여 배열의 각 요소를 더하는 방식입니다.
+        var sum = 0;
+        com[i].forEach((num) => {
+            sum += num;
+        });
+        if (isPrime(sum)) {
+            answer++;
+        }
+    }
+    return answer;
+}
+
+function combination(n, array) {
+    if (n == 1) {
+        return array.map((a) => [a]);
+    }
+    const result = [];
+    for (let i = 0; i < array.length; i++) {
+        const a = array.slice(i + 1);
+        const b = combination(n - 1, a);
+        const attach = b.map((c) => [array[i], ...c]);
+        result.push(...attach);
+    }
+    return result;
+}
+
+function isPrime(num) {
+    if (num <= 1) return false;
+    for (let i = 2; i <= Math.sqrt(num); i++) {
+        if (num % i === 0) return false;
+    }
+    return true;
+}
 
 console.log(solution([[1, 2, 3, 4, 5, 6], [3, 3, 3, 3, 4, 4], [1, 3, 3, 4, 4, 4], [1, 1, 4, 4, 5, 5]])); // [1, 4]
