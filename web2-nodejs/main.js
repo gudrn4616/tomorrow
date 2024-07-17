@@ -3,6 +3,8 @@ var fs = require("fs"); // 파일 시스템 모듈을 사용하여 파일을 읽
 var url = require("url"); // url 모듈을 사용하여 URL을 파싱
 var template = require("./template.js"); // template.js 모듈을 불러옴
 var qs = require("querystring"); // querystring 모듈을 사용하여 쿼리 문자열을 처리
+var path=require("path");//path 모듈을 사용하여 경로를 처리
+var sanitizeHtml=require("sanitize-html");//sanitize-html 모듈을 사용하여 HTML 코드를 제거
 
 // 서버를 생성하고 요청을 처리하는 함수
 var app = http.createServer((request, response)=> {
@@ -31,11 +33,17 @@ var app = http.createServer((request, response)=> {
     } else {
       // id가 있는 경우
       fs.readdir("./data", (error, filelist) =>{
+        var filteredId=path.parse(queryData.id).base;
         fs.readFile(
-          `data/${queryData.id}`,
+          `data/${filteredId}`,
           "utf8",
           function (err, description) {
-            var title = queryData.id; // 파일 이름을 제목으로 사용
+            var sanitizeTitle=sanitizeHtml(queryData.id);
+            var sanitizeDescription=sanitizeHtml(description,{
+              allowedTags:['h1']
+            });
+            var title = sanitizeTitle; // 파일 이름을 제목으로 사용
+            var description = sanitizeDescription; // 파일 설명을 제목으로 사용
             var control = `<a href="/create">create</a> 
             <a href="/update?id=${title}">update</a> 
             <form action="/delete_process" method="post">
@@ -97,7 +105,8 @@ var app = http.createServer((request, response)=> {
   } else if (pathname == "/update") {
     // 업데이트 경로에 대한 요청 처리
     fs.readdir("./data", function (error, filelist) {
-      fs.readFile(`data/${queryData.id}`, "utf8", (err, description) => {
+      var filteredId=path.parse(queryData.id).base;
+      fs.readFile(`data/${filteredId}`, "utf8", (err, description) => {
         var title = queryData.id; // 파일 이름을 제목으로 사용
         var control = `<a href="/create">create</a>
         <a href="/update?id=${title}">update</a>`; // 생성 및 업데이트 링크
@@ -146,7 +155,8 @@ var app = http.createServer((request, response)=> {
     request.on("end", () => {
       var post = qs.parse(body);
       var id = post.id;
-      fs.unlink(`./data/${id}`, (err) => {
+      var filteredId=path.parse(queryData.id).base;
+      fs.unlink(`./data/${filteredId}`, (err) => {
         response.writeHead(302, { location: `/` });
         response.end();
       });
