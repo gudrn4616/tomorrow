@@ -2,15 +2,12 @@ function solution(id_list, reports, k) {
     let answer = []
     
     let id_list_map=new Map();
+    let id_list_reportMessage_map = new Map();
+
     id_list.map(a=>{
         id_list_map.set(a,new Set())
-    })
-    
-    let id_list_reportMessage_map = new Map();
-    id_list.map(a=>{
         id_list_reportMessage_map.set(a,0)
     })
-    
     
     for(const report of reports){
         const [reported,reporter]=report.split(' ').reverse()
@@ -26,10 +23,7 @@ function solution(id_list, reports, k) {
          }
      })
     
-    id_list_reportMessage_map.forEach(a=>{
-        answer.push(a)
-    })
-    
+    answer = id_list.map(a=>id_list_reportMessage_map.get(a))
     
     return answer;
 }
